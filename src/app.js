@@ -3,9 +3,12 @@ const connectDB = require("./config/database");
 const User = require("./models/user");
 const app = express();
 const validateSignUpData = require("./utils/validation")
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   try{
@@ -49,15 +52,48 @@ app.post("/login", async(req, res) => {
 
     const isMatch = await bcrypt.compare(password, user.password);
 
-    if(!isMatch){
-      return res.status(400).send("Invalid Credentials");
+    if(isMatch){
+
+      //create a jwt token
+      const token =  jwt.sign({_id: user._id}, "akash@2001");
+      //add token to the cookie and send response back to the user 
+      res.cookie("token", token);
+
+      return res.status(200).send("Login Successful");
+    }
+    else{
+      throw new Error("Invalid Credentials");
     }
     
-    res.status(200).send("Login Successful");
+    
   }
   catch(err){
     res.send(500).send("Error logging in:" + err.message);
   }
+})
+
+app.get("/profile", async(req, res) => {
+  try{
+  const cookies = req.cookies;
+
+  const {token} = cookies;
+  if(!token){
+    throw new Error("Invalid token");
+  }
+
+  const decodedMessage = await jwt.verify(token, "akash@2001"); // verify function gives back the data that we put in the token
+  const {_id} = decodedMessage;
+
+  const user = await User.findById(_id);
+  if(!user){
+    throw new Error("User does not exist");
+  }
+  res.send(user);
+
+}
+catch(err){
+   res.send(400).send("something went wrong");
+}
 })
 
 app.get("/user", async (req, res) => {
