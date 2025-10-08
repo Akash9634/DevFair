@@ -6,7 +6,7 @@ const validateSignUpData = require("./utils/validation")
 const cookieParser = require("cookie-parser");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
-
+const userAuth = require("./middlewares/auth");
 app.use(express.json());
 app.use(cookieParser());
 
@@ -50,14 +50,16 @@ app.post("/login", async(req, res) => {
       return res.status(400).send("User not found");
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await user.validatePassword(password); // schema method used 
 
     if(isMatch){
 
-      //create a jwt token
-      const token =  jwt.sign({_id: user._id}, "akash@2001");
+      const token = await user.getJWT(); // schema method used
+     
       //add token to the cookie and send response back to the user 
-      res.cookie("token", token);
+      res.cookie("token", token, {
+        expires: new Date(Date.now() + 8 * 3600000)
+      });
 
       return res.status(200).send("Login Successful");
     }
@@ -68,33 +70,21 @@ app.post("/login", async(req, res) => {
     
   }
   catch(err){
-    res.send(500).send("Error logging in:" + err.message);
+    res.status(500).send("Error logging in:" + err.message);
   }
 })
 
-app.get("/profile", async(req, res) => {
+app.get("/profile", userAuth, async(req, res) => {
   try{
-  const cookies = req.cookies;
+  const user = req.user;
 
-  const {token} = cookies;
-  if(!token){
-    throw new Error("Invalid token");
-  }
-
-  const decodedMessage = await jwt.verify(token, "akash@2001"); // verify function gives back the data that we put in the token
-  const {_id} = decodedMessage;
-
-  const user = await User.findById(_id);
-  if(!user){
-    throw new Error("User does not exist");
-  }
   res.send(user);
 
 }
 catch(err){
    res.send(400).send("something went wrong");
 }
-})
+});
 
 app.get("/user", async (req, res) => {
   const userEmail = req.body.emailId;

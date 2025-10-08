@@ -1,4 +1,4 @@
-const jwt = requre("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 const User = require("../models/user"); 
 const userAuth = async (req, res, next) => {
   try{
@@ -27,3 +27,5 @@ catch(err){
   res.status(400).send("ERROR: " + err.message );
 }
 };
+
+module.exports = userAuth;
