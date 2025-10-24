@@ -25,7 +25,7 @@ requestRouter.post(
         });
       }
       
-      // if invalid userid is sent 
+      // if invalid userid is sent
       const toUser = await User.findById(toUserId);
 
       if(!toUser){
@@ -57,7 +57,7 @@ requestRouter.post(
       const data = await connectionRequest.save();
 
       res.json({
-        message: "Connection request sent Successfully",
+        message: req.user.firstName + "is" + status + "in" + toUser.firstName,
         data,
       });
     } catch (err) {
