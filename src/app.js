@@ -89,7 +89,7 @@ app.patch("/user/:userId", async(req, res) => {
 
 connectDB()
   .then(()=>{
-    console.log("Database conncetion established");
+    console.log("Database connection established");
     app.listen(3001, ()=>{ //we are listening to the server after db conncetion is successful, what if db connection is not successful and users are hitting the apis 
     console.log("hello from the server");
 });
