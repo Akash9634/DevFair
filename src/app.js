@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require("express");
 const connectDB = require("./config/database");
 const User = require("./models/user");
@@ -8,6 +9,7 @@ const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/requests");
 const userRouter = require("./routes/user");
 const cors = require("cors");
+
 
 app.use(cors({
   origin: "http://localhost:5173",
@@ -98,12 +100,12 @@ app.patch("/user/:userId", async(req, res) => {
 connectDB()
   .then(()=>{
     console.log("Database connection established");
-    app.listen(3001, ()=>{ //we are listening to the server after db conncetion is successful, what if db connection is not successful and users are hitting the apis 
+    app.listen(process.env.PORT, ()=>{ //we are listening to the server after db conncetion is successful, what if db connection is not successful and users are hitting the apis 
     console.log("hello from the server");
 });
   })
   .catch((err)=>{
-    console.error("database can not be connected");
+    console.error("database can not be connected", err.message);
   });
 
 
