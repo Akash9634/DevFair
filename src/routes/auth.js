@@ -7,6 +7,7 @@ const jwt = require("jsonwebtoken");
 const userAuth = require("../middlewares/auth");
 const {validateEditProfileData} = require("../utils/validation");
 
+
 authRouter.post("/signup", async (req, res) => {
   try{
     // validate signup data

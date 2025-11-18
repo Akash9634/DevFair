@@ -8,8 +8,10 @@ const authRouter = require("./routes/auth");
 const profileRouter = require("./routes/profile");
 const requestRouter = require("./routes/requests");
 const userRouter = require("./routes/user");
+const paymentRouter = require("./routes/payment");
 const cors = require("cors");
-
+const initializeSocket = require("./utils/socket");
+const http = require("http");
 
 app.use(cors({
   origin: "http://localhost:5173",
@@ -23,6 +25,10 @@ app.use("/", authRouter);
 app.use("/", profileRouter);
 app.use("/", requestRouter);
 app.use("/", userRouter);
+app.use("/", paymentRouter);
+
+const server = http.createServer(app);
+initializeSocket(server);
 
 app.get("/user", async (req, res) => {
   const userEmail = req.body.emailId;
@@ -100,7 +106,7 @@ app.patch("/user/:userId", async(req, res) => {
 connectDB()
   .then(()=>{
     console.log("Database connection established");
-    app.listen(process.env.PORT, ()=>{ //we are listening to the server after db conncetion is successful, what if db connection is not successful and users are hitting the apis 
+    server.listen(process.env.PORT, ()=>{ //we are listening to the server after db conncetion is successful, what if db connection is not successful and users are hitting the apis 
     console.log("hello from the server");
 });
   })
